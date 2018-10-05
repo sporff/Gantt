@@ -13,7 +13,10 @@ function buildTimelineGraph(parentDivID, newGraphDivID, graphStruct)
     parentDiv.html("");
 
     // Add the graph's main div
-    parentDiv.append('<div id="' + newGraphDivID + '" style="margin: 0 auto; border: 1px solid black; border-radius: 5px;"></div>');
+    parentDiv.append('<div id="graphwrapper_' + newGraphDivID + '" style=""></div>');
+    var graphWrapperDiv = $('#graphwrapper_' + newGraphDivID);
+    graphWrapperDiv.append('<div id="graphrowlegend_' + newGraphDivID + '" style="text-align:right;float: left; display:inline-block;background-color:#eee;">Work<br>Conveyor View<br>Missed Window<br>Zone Interruption<br>Unknown Container<br>something<br>something else</div>');
+    graphWrapperDiv.append('<div id="' + newGraphDivID + '" style="display:inline-block;width:80%;margin: 0 auto; border: 1px solid black; border-radius: 5px;"></div>');
     var newGraphDiv = $('#' + newGraphDivID);
 
     // Save any data that will be needed later
@@ -29,7 +32,7 @@ function buildTimelineGraph(parentDivID, newGraphDivID, graphStruct)
 
     // Add header
     var rowString = '<div id="'+ newGraphDivID +'_header" class="timelineRow timelineRowHeader"></div>';
-    newGraphDiv.append(rowString);
+    //newGraphDiv.append(rowString);
     console.log(rowString);
     
 
