@@ -69,6 +69,9 @@ function addTimelineBars(graphID, rowID, barData)
 {
     var graphDiv = $('#' + graphID);
     var rowDiv = $('#' + rowID);
+    var farthestEnd = 0;
+    var overlapHeightTracker = 80;
+    var opacityTracker = 1;
     if (rowDiv.length === 0 || graphDiv === 0) {
         console.log("Error: Cannot find graph or row!");
         return;
@@ -77,14 +80,37 @@ function addTimelineBars(graphID, rowID, barData)
     for (b=0; b<barData.length; b++)
     {
         var barStart = barData[b].start;
-        var barLen = barData[b].end - barData[b].start;
-        var barColor = rowDiv.data().barColor;
+        var barEnd = barData[b].end;
+        var barLen = barEnd - barStart;
+
+        if (barEnd < barStart) {
+            [barStart, barEnd] = [barEnd, barStart];
+            barLen = -barLen;
+        }
+        if (barEnd <= 0 || barStart >= 100)
+            return;
+
+        if (barStart < farthestEnd) {
+            overlapHeightTracker -= 10;
+            opacityTracker = 0.7;
+            if (barEnd > farthestEnd)
+                farthestEnd = barEnd;
+        }
+        else {
+            opacityTracker = 1;
+            overlapHeightTracker = 80;
+            farthestEnd = barEnd;
+        }
+
         var graphShadow = graphDiv.data().shadow;
         var rowHeight = graphDiv.data().rowHeight;
         var border = graphDiv.data().border;
         var cornerRadius = graphDiv.data().cornerRadius;
         var onmouseover = graphDiv.data().onmouseover;
         var onmouseleave = graphDiv.data().onmouseleave;
+        var barColor = rowDiv.data().barColor;
+        if (barData[b].barColor != null)
+            barColor = barData[b].barColor;
 
         var barString = '<div id="'+ barData[b].id +'" class="timelineRow eventRect"';
         if (onmouseover != null) {
@@ -95,15 +121,16 @@ function addTimelineBars(graphID, rowID, barData)
             //barString += ' onmouseleave="'+ onmouseleave +'()"';
         }
         // style
-        barString += ' style="width: '+ barLen +'%; margin: 0 '+ barStart +'%; background-color: '+ barColor +';';
-        if (graphShadow === true) {
+        barString += ' style="opacity: '+ opacityTracker +';top: 10%; height: ' + overlapHeightTracker + '%; width: '+ barLen +'%; margin: 0 '+ barStart +'%; background-color: '+ barColor +';';
+        //barString += ' style="height:80%; width: '+ barLen +'%; margin: 0 '+ barStart +'%; background-color: '+ barColor +';';
+        /* if (graphShadow === true) {
             barString += ' box-shadow: 1px 1px;';                // limited to 1px shadow for now
             barString += ' height: ';
             if (rowHeight.includes('px'))
                 barString += (parseInt(rowHeight, 10)-1) + 'px;';
             else if (rowHeight.includes('%'))
                 barString += "100%;"
-        }
+        } */
         if (border != null) {
             barString += ' border: '+ border +';';
         }
@@ -152,8 +179,8 @@ $(document).ready(function(){
         showTitle: true,
         rowHeight: "25px",
         border: "1px solid black",
-        cornerRadius: "8px",
-        shadow: true,
+        cornerRadius: "2px",
+        //shadow: true,
         onmouseover: "mouseOverCallback",
         onmouseleave: "mouseLeaveCallback",
         rowStruct: [
@@ -162,9 +189,9 @@ $(document).ready(function(){
             {id:"row3", barColor:"#dd3"},
             {id:"row4", barColor:"#d33"},
             {id:"row5", barColor:"#3ad"},
-            {id:"row6", rowColor:"#555555", barColor:"#33F"},
+            {id:"row6", barColor:"#33F"},
             {id:"row7", barColor:"#dd3"},
-            {id:"row8", barColor:"#d33"},
+            {id:"row8", rowColor:"#555555", barColor:"#d33"},
         ]
     };
 
@@ -174,10 +201,11 @@ $(document).ready(function(){
         { id:"bar0", title:"[BWS02 - Zone 3]", start:5, end:17 },
         { id:"bar1", start:21, end:41 },
         { id:"bar2", start:37, end:65 },
+        { id:"bar2", start:55, end:60 },
         { id:"bar3", start:90, end:93 },
     ];
     row2data = [
-        { id:"2bar0", start:10, end:20 },
+        { id:"2bar0", start:10, end:20, barColor:"#ff00ff", },
         { id:"2bar1", start:30, end:35 },
         { id:"2bar2", start:50, end:70 },
         { id:"2bar3", start:80, end:93 },
@@ -187,7 +215,7 @@ $(document).ready(function(){
     ];
     row4data = [
         { id:"4bar0", start:5, end:30 },
-        { id:"4bar1", start:17, end:40 },
+        { id:"4bar1", start:17, end:40, barColor:"#000000" },
     ];
     row5data = [
         { id:"5bar0", start:60, end:103 },
